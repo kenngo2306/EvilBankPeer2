@@ -311,9 +311,100 @@ public class Evil_corp_app {
 	
 	public static void transferMoney(Scanner key)
 	{
-//		System.out.println("Transfer Money  \n\n");
-//		String account_number
-//		System.out.println("Enter the account number that you want to transfere from: ");
+		AccountDBHelper all_in_sql = new AccountDBHelper();
+		System.out.println("Transfer Money  \n\n");
+		String account_number1 = " ";
+		String account_number2 = " ";
+		//From
+		System.out.println("Enter the account number that you want to transfere from: ");
+		
+		account_number1 = key.next();
+		key.nextLine();
+		
+		Account account1 = new Account ();
+		Account account2 = new Account ();
+		boolean hasAccount = false;
+		
+		while(!hasAccount)
+		{
+
+			account1 = all_in_sql.getAccountFromNumber(account_number1);
+			
+			if(account1.getAccount_number() != null)
+			{
+				hasAccount = true;
+			}
+			else
+			{
+				System.out.println("Account not found! Please try again");
+				System.out.println("Enter the account number that you want to transfere from: ");
+				account_number1 = key.next();
+				key.nextLine();
+			}
+		}
+		
+		String amount = " ";
+		System.out.println("Enter the ammount: ");
+		
+		amount =  key.next();
+		key.nextLine();
+		boolean validType = false;
+		while(!validType)
+		{
+
+			validType = Validator.validateDoubleWithRange(amount, 0, account1.getStarting_balance());
+			if (!validType){
+				System.out.println("Invalid amount \n");
+				System.out.println("Enter the ammount: ");
+				
+				amount =  key.next();
+				key.nextLine();
+			}
+			else
+			{
+				validType = true;
+			}
+
+		}
+		
+		
+		//TO
+		////////////////////
+		System.out.println("Enter the account number that you want to transfere to: ");
+		
+		account_number2 = key.next();
+		key.nextLine();
+		
+		
+		hasAccount = false;
+		
+		while(!hasAccount)
+		{
+
+			account2 = all_in_sql.getAccountFromNumber(account_number2);
+			
+			if(account2.getAccount_number() != null)
+			{
+				hasAccount = true;
+			}
+			else
+			{
+				System.out.println("Account not found! Please try again");
+				System.out.println("Enter the account number that you want to transfere to: ");
+				account_number2 = key.next();
+				key.nextLine();
+			}
+		}
+		
+		//Transfere process
+		account1.setStarting_balance(account1.getStarting_balance() - Double.parseDouble(amount ));
+		account2.setStarting_balance(account2.getStarting_balance() + Double.parseDouble(amount ));
+	
+		//Update accounts after transfer money.
+		all_in_sql.updateBalance(account1);
+		all_in_sql.updateBalance(account2);
+		
+		
 	}
 
 
