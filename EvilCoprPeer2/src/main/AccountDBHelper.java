@@ -22,6 +22,7 @@ public class AccountDBHelper
 	private static final String TRANSACTION_TYPE_ID = "TRANSACTION_TYPE_ID";
 	private static final String TRANSACTION_DATE = "TRANSACTION_DATE";
 	private static final String AMOUNT = "AMOUNT";
+	private static final String CUSTOMER_ID = "CUSTOMER_ID";
 	
 	public void updateBalance(Account account)
 	{
@@ -68,9 +69,7 @@ public class AccountDBHelper
              {
              	Account account = new Account();
              	account.setAccount_number(result.getString("account_number"));
-     
-             	account.setBirth_date(result.getDate("birth_date"));
-             	account.setName(result.getString("name"));
+             	account.setCustomer_id(result.getInt("customer_id"));
              	account.setStarting_balance(result.getDouble("starting_balance"));
        	
              	//TODO add fields for accounts
@@ -140,8 +139,7 @@ public class AccountDBHelper
 			while(result.next())
 			{
              	account.setAccount_number(result.getString("account_number"));
-             	account.setBirth_date(result.getDate("birth_date"));
-             	account.setName(result.getString("name"));
+             	account.setCustomer_id(result.getInt("customer_id"));
              	account.setStarting_balance(result.getDouble("starting_balance"));
 			}
 		}
@@ -153,26 +151,80 @@ public class AccountDBHelper
 		return account;
 	}
 	
+	private static final String CUSTOMER_TABLE = "Evil_Customer";
+	private static final String FIRST_NAME = "First_Name";
+	private static final String LAST_NAME = "Last_Name";
+	private static final String PHONE_NUMBER = "Phone_Number";
+	
+	public void insertCustomer(Customer customer)
+	{
+		String insertCustomer = "INSERT INTO " + CUSTOMER_TABLE + 
+				"( "+
+				" " + FIRST_NAME + ", " +
+				" " + LAST_NAME + ", " +
+				" " + PHONE_NUMBER +
+				" ) VALUES  " +
+				"(?,?,?)";
+		System.out.println(insertCustomer);
+		try
+		{
+			PreparedStatement prepareStatement = getConnection().prepareStatement(insertCustomer);
+			prepareStatement.setString(1, customer.getFirst_name());
+			prepareStatement.setString(2, customer.getLast_name());
+			prepareStatement.setString(3, customer.getPhone_number());
+
+			prepareStatement.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public  Customer findCustomerByPhone(String phone_number)
+	{
+		Customer customer = new Customer();
+		String sql = "SELECT * FROM " + CUSTOMER_TABLE + " WHERE phone_number = '" + phone_number + "'";
+
+		System.out.println(sql);
+		ResultSet result = selectSQL(sql);
+		try
+		{
+			while(result.next())
+			{
+				customer.setId(result.getInt("ID"));
+				customer.setFirst_name(result.getString(FIRST_NAME));
+				customer.setLast_name(result.getString(LAST_NAME));
+				customer.setPhone_number(result.getString(PHONE_NUMBER));
+			}
+		}
+		
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return customer;
+	}
 	public void insertAccount(Account account)
 	{
 		String insertAccount = "INSERT INTO " + ACCOUNT_TABLE + 
 				"( "+
 				" " + ACCOUNT_NUMBER + ", " +
-				" " + NAME + ", " +
-				" " + STARTING_BALANCE + ", " +
-				" " + BIRTH_DATE +
+				" " + CUSTOMER_ID + ", " +
+				" " + STARTING_BALANCE  +
+	
 				" ) VALUES  " +
-				"(?,?,?,?)";
+				"(?,?,?)";
 		System.out.println(insertAccount);
 		try
 		{
-			java.util.Date utilDate = account.getBirth_date();
-		    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+			
 			PreparedStatement prepareStatement = getConnection().prepareStatement(insertAccount);
 			prepareStatement.setString(1, account.getAccount_number());
-			prepareStatement.setString(2, account.getName());
+			prepareStatement.setInt(2, account.getCustomer_id());
 			prepareStatement.setDouble(3, account.getStarting_balance());
-			prepareStatement.setDate(4,sqlDate);
+
 			
 			prepareStatement.executeUpdate();
 		} 
@@ -180,6 +232,54 @@ public class AccountDBHelper
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	public boolean availablePhone(String phoneNumber)
+	{
+		String sql = "SELECT COUNT(*) FROM EVIL_CUSTOMER WHERE PHONE_NUMBER = '" + phoneNumber + "'"; 
+		ResultSet rs = selectSQL(sql);
+		int count = 0;
+		try
+		{
+			rs.next();
+			count = rs.getInt(1);
+		} catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (count > 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
+	public boolean availableAccountNumber(String accountNumber)
+	{
+		String sql = "SELECT COUNT(*) FROM EVIL_ACCOUNT WHERE ACCOUNT_NUMBER = '" + accountNumber + "'"; 
+		ResultSet rs = selectSQL(sql);
+		int count = 0;
+		try
+		{
+			rs.next();
+			count = rs.getInt(1);
+		} catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (count > 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
 		}
 	}
 	
@@ -214,4 +314,6 @@ public class AccountDBHelper
 		}
 		return result;
 	}
+	
+	
 }
