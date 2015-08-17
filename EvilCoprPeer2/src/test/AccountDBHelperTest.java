@@ -11,6 +11,12 @@ import org.junit.Test;
 public class AccountDBHelperTest
 {
 	@Test
+	public void testHasSaving()
+	{
+		AccountDBHelper db = new AccountDBHelper();
+		assertTrue(db.hasSaving(2));
+	}
+//	@Test
 	public void testAvailablePhone()
 	{
 		AccountDBHelper db = new AccountDBHelper();
