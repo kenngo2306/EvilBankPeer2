@@ -504,7 +504,7 @@ public class Evil_corp_app {
 			if (amount > account.getStarting_balance())
 			{
 				//has saving
-				if(hasSaving)
+				if(db.hasSaving(account.getCustomer_id()))
 				{
 					Account savingAccount = db.getSavingAccount(account.getCustomer_id());
 					

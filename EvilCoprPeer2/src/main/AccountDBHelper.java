@@ -412,8 +412,8 @@ public class AccountDBHelper
 	}
 	
 	
-	public Account getCheckingAccount(int customer_id){
-		String sql = "SELECT * FROM EVIL_ACCOUNT WHERE CUSTOMER_ID = " + customer_id + " AND ACCOUNT_TYPE_ID = 1" ; 
+	public Account getSavingAccount(int customer_id){
+		String sql = "SELECT * FROM EVIL_ACCOUNT WHERE CUSTOMER_ID = " + customer_id + " AND ACCOUNT_TYPE_ID = 2" ; 
 		ResultSet result = selectSQL(sql);
 		Account account = new Account();
 		
