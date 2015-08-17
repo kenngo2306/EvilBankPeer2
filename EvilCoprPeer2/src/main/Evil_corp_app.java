@@ -141,43 +141,89 @@ public class Evil_corp_app {
 
 		account.setCustomer_id(customer.getId());
 		
-		System.out.print("Enter account number: ");
-		String account_number = key.next();
-		key.nextLine();
-		
-		while(!helper.availableAccountNumber(account_number))
+		boolean isValidType = false;
+		String accountType = "";
+		while(!isValidType)
 		{
-	
-			System.out.println("Account number existed ");
-			System.out.print("Enter account number: ");
-			account_number = key.next();
-			key.nextLine();
+			System.out.println("accountType = " +accountType);
+
+			if(!(accountType.equalsIgnoreCase("c") || accountType.equalsIgnoreCase("s")))
+			{
+				System.out.println("Please enter account type (c for checking or s for saving)");
+				accountType = key.nextLine();
+				
+			}
+			else
+			{
+				isValidType = true;
+			}
 		}
-		account.setAccount_number(account_number);
-		
-		
-		System.out.print("Enter starting balance : ");
-		String starting_balance = key.next();
-		key.nextLine();
-		
-		
-		
-		boolean isValid = false;
-		while(!isValid)
+		boolean isSaving = true;
+		boolean canAddAccount = false;
+		if (accountType.equalsIgnoreCase("s"))
 		{
-			if(Validator.validateDoubleWithRange(starting_balance, 0, 1000000)){
-				isValid = true;
-			}else{
-				System.out.println("Invalid balance, try again.");
-				starting_balance = key.next();
+			isSaving = true;
+			System.out.println("customer id = " + account.getCustomer_id());
+			canAddAccount = !helper.hasSaving(account.getCustomer_id());
+			System.out.println("can add account = " + canAddAccount);
+		}
+		else
+		{
+			isSaving = false;
+			System.out.println("customer id = " + account.getCustomer_id());
+			canAddAccount = !helper.hasChecking(account.getCustomer_id());
+			System.out.println("can add account = " + canAddAccount);
+		}
+		
+		if(canAddAccount)
+		{
+			System.out.print("Enter account number: ");
+			String account_number = key.next();
+			key.nextLine();
+			
+			account.setAccount_type_id(isSaving? 2:1);
+			System.out.println("account type id = " + account.getAccount_type_id());
+			while(!helper.availableAccountNumber(account_number))
+			{
+		
+				System.out.println("Account number existed ");
+				System.out.print("Enter account number: ");
+				account_number = key.next();
 				key.nextLine();
 			}
+			account.setAccount_number(account_number);
 			
+			
+			System.out.print("Enter starting balance : ");
+			String starting_balance = key.next();
+			key.nextLine();
+			
+			
+			
+			boolean isValid = false;
+			while(!isValid)
+			{
+				if(Validator.validateDoubleWithRange(starting_balance, 0, 1000000)){
+					isValid = true;
+				}else{
+					System.out.println("Invalid balance, try again.");
+					starting_balance = key.next();
+					key.nextLine();
+				}
+				
+			}
+			
+			account.setStarting_balance(Double.parseDouble(starting_balance));
+			helper.insertAccount(account);
+			System.out.println("Account created");
 		}
+		else
+		{
+			System.out.println("Account Type Existed");
+		}
+			
 		
-		account.setStarting_balance(Double.parseDouble(starting_balance));
-		helper.insertAccount(account);
-		System.out.println("Account created");
+
 		
 		
 	}
@@ -375,7 +421,7 @@ public class Evil_corp_app {
 		while(!validType)
 		{
 
-			validType = Validator.validateDoubleWithRange(amount, 0, account1.getStarting_balance());
+			validType = Validator.validateDoubleWithRange(amount, 0, 1000000000);
 			if (!validType){
 				System.out.println("Invalid amount \n");
 				System.out.println("Enter the ammount: ");

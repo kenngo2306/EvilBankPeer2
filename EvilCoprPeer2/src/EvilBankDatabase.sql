@@ -42,6 +42,7 @@ alter table evil_account drop column birth_date;
 alter table evil_account add customer_id integer;
 
 alter table evil_customer add phone_number varchar(20);
+alter table evil_account add account_type_id integer;
 
 
 CREATE SEQUENCE transaction_seq

@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class AccountDBHelper
 {
 	private static final String ACCOUNT_TABLE = "Evil_Account";
+	private static final String ACCOUNT_TYPE_ID = "ACCOUNT_TYPE_ID";
 	private static final String ID = "ID";
 	private static final String ACCOUNT_NUMBER = "ACCOUNT_NUMBER";
 	private static final String NAME = "NAME";
@@ -75,6 +76,7 @@ public class AccountDBHelper
              	account.setAccount_number(result.getString("account_number"));
              	account.setCustomer_id(result.getInt("customer_id"));
              	account.setStarting_balance(result.getDouble("starting_balance"));
+             	account.setAccount_type_id(result.getInt("account_type_id"));
        	
              	//TODO add fields for accounts
              	accounts.add(account);
@@ -145,6 +147,7 @@ public class AccountDBHelper
              	account.setAccount_number(result.getString("account_number"));
              	account.setCustomer_id(result.getInt("customer_id"));
              	account.setStarting_balance(result.getDouble("starting_balance"));
+             	account.setAccount_type_id(result.getInt("account_type_id"));
 			}
 		}
 		
@@ -216,10 +219,10 @@ public class AccountDBHelper
 				"( "+
 				" " + ACCOUNT_NUMBER + ", " +
 				" " + CUSTOMER_ID + ", " +
-				" " + STARTING_BALANCE  +
-	
+				" " + STARTING_BALANCE  + ", " +
+				" " + ACCOUNT_TYPE_ID  +
 				" ) VALUES  " +
-				"(?,?,?)";
+				"(?,?,?,?)";
 		System.out.println(insertAccount);
 		try
 		{
@@ -228,6 +231,7 @@ public class AccountDBHelper
 			prepareStatement.setString(1, account.getAccount_number());
 			prepareStatement.setInt(2, account.getCustomer_id());
 			prepareStatement.setDouble(3, account.getStarting_balance());
+			prepareStatement.setInt(4, account.getAccount_type_id());
 
 			
 			prepareStatement.executeUpdate();
@@ -422,7 +426,7 @@ public class AccountDBHelper
 		{
 			while(result.next())
 			{
-				account.setAccount_type_id(result.getInt(ID));
+				account.setAccount_type_id(result.getInt(ACCOUNT_TYPE_ID));
 				account.setCustomer_id(result.getInt(CUSTOMER_ID));
 				account.setStarting_balance(result.getDouble(STARTING_BALANCE));
 				account.setAccount_number(result.getString(ACCOUNT_NUMBER));
