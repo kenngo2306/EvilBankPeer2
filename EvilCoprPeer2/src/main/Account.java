@@ -12,9 +12,16 @@ public class Account
 	private double starting_balance;
 
 	private int customer_id;
+	private int account_type_id;
 
 	
 
+	public int getAccount_type_id() {
+		return account_type_id;
+	}
+	public void setAccount_type_id(int account_type_id) {
+		this.account_type_id = account_type_id;
+	}
 	public int getCustomer_id()
 	{
 		return customer_id;

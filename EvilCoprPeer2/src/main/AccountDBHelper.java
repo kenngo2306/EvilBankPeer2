@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AccountDBHelper
 {
@@ -23,6 +24,9 @@ public class AccountDBHelper
 	private static final String TRANSACTION_DATE = "TRANSACTION_DATE";
 	private static final String AMOUNT = "AMOUNT";
 	private static final String CUSTOMER_ID = "CUSTOMER_ID";
+	
+	private static final String ACCOUNT_TYPE = "EVIL_ACCOUNT_TYPE";
+	private static final String ACCOUNT_TYPE_NAME = "TYPE_NAME";
 	
 	public void updateBalance(Account account)
 	{
@@ -315,5 +319,123 @@ public class AccountDBHelper
 		return result;
 	}
 	
+	//
 	
+	public void insertAccount_type(AccountType type)
+	{
+		String insertAccountType = "INSERT INTO " + ACCOUNT_TYPE + 
+				"( "+
+				" " + ID + ", " +
+				" " + ACCOUNT_TYPE_NAME +
+				" ) VALUES  " +
+				"(?,?)";
+		System.out.println(insertAccountType);
+		try
+		{
+			
+			PreparedStatement prepareStatement = getConnection().prepareStatement(insertAccountType);
+			prepareStatement.setInt(1, type.getId());
+			prepareStatement.setString(2, type.getName());
+			prepareStatement.executeUpdate();
+		} 
+		catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	public HashMap< String, Integer> getAcctType(){
+		String sql = "SELECT * FROM " + ACCOUNT_TYPE ;
+		
+		HashMap< String, Integer> account_type = new HashMap< String, Integer>();
+		
+		
+		try
+		{
+			ResultSet result = selectSQL(sql);
+			while(result.next())
+			{
+				account_type.put(result.getString("TYPE_NAME"),result.getInt("ID"));
+			}
+		}
+		catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return account_type;
+		
+	}
+	
+	
+	
+	public boolean hasChecking(int customer_id){
+		String sql = "SELECT COUNT(*) FROM EVIL_ACCOUNT WHERE CUSTOMER_ID = " + customer_id + " AND ACCOUNT_TYPE_ID = 1" ; 
+		ResultSet result = selectSQL(sql);
+		int count = 0;
+		boolean hasChecking;
+		try
+		{
+			result.next();
+			count = result.getInt(1);
+		} catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		hasChecking = (count > 0) ? true:false;
+		return hasChecking;
+	}
+	
+	public boolean hasSaving(int customer_id){
+		String sql = "SELECT COUNT(*) FROM EVIL_ACCOUNT WHERE CUSTOMER_ID = " + customer_id + " AND ACCOUNT_TYPE_ID = 2" ; 
+		ResultSet result = selectSQL(sql);
+		int count = 0;
+		boolean hasSaving;
+		try
+		{
+			result.next();
+			count = result.getInt(1);
+		} catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		hasSaving = (count > 0) ? true:false;
+		return hasSaving;
+	}
+	
+	
+	public Account getCheckingAccount(int customer_id){
+		String sql = "SELECT * FROM EVIL_ACCOUNT WHERE CUSTOMER_ID = " + customer_id + " AND ACCOUNT_TYPE_ID = 1" ; 
+		ResultSet result = selectSQL(sql);
+		Account account = new Account();
+		
+		System.out.println(sql);
+		try
+		{
+			while(result.next())
+			{
+				account.setAccount_type_id(result.getInt(ID));
+				account.setCustomer_id(result.getInt(CUSTOMER_ID));
+				account.setStarting_balance(result.getDouble(STARTING_BALANCE));
+				account.setAccount_number(result.getString(ACCOUNT_NUMBER));
+			}
+		}
+		
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return account;
+	}
 }
+
+
+
