@@ -3,14 +3,41 @@ package test;
 import static org.junit.Assert.*;
 import main.Account;
 import main.AccountDBHelper;
+import main.Customer;
 import main.Transaction;
 
 import org.junit.Test;
 
 public class AccountDBHelperTest
 {
-
 	@Test
+	public void testAvailablePhone()
+	{
+		AccountDBHelper db = new AccountDBHelper();
+		assertTrue(db.availablePhone("1234567890"));
+		assertFalse(db.availablePhone("8325266007"));
+	}
+//	@Test
+	public void testInsertCustomer()
+	{
+		Customer customer = new Customer();
+		customer.setFirst_name("Ken");
+		customer.setLast_name("Ngo");
+		customer.setPhone_number("8325266007");
+		
+		AccountDBHelper db = new AccountDBHelper();
+		db.insertCustomer(customer);
+	}
+	
+//	@Test
+	public void testFindCustomer()
+	{
+		AccountDBHelper db = new AccountDBHelper();
+		Customer customer = db.findCustomerByPhone("8325266007");
+		System.out.println(customer.getFirst_name());
+	}
+	
+//	@Test
 	public void testGetAllAccounts()
 	{
 		AccountDBHelper accountDBHelper = new AccountDBHelper();
@@ -23,7 +50,7 @@ public class AccountDBHelperTest
 		String accountNumber = "11121";
 		AccountDBHelper accountDBHelper = new AccountDBHelper();
 		Account account = accountDBHelper.getAccountFromNumber(accountNumber);
-		System.out.println(account.getName());
+//		System.out.println(account.getName());
 	}
 	
 	//@Test
@@ -43,7 +70,7 @@ public class AccountDBHelperTest
 		Account account = new Account();
 
 		account.setAccount_number("11121");
-		account.setName("Ken");
+//		account.setName("Ken");
 		account.setStarting_balance(1000);
 		AccountDBHelper accountDBHelper = new AccountDBHelper();
 		accountDBHelper.insertAccount(account);

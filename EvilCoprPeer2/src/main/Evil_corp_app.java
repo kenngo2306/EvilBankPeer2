@@ -26,101 +26,165 @@ public class Evil_corp_app {
 		String amount="";
 		String transaction_date = "";
 		
-		//Operator + for deposit, - for other transaction.
-		String operator;
 		
 		
 		//Add account information into the database.
 		AccountDBHelper all_in_sql = new AccountDBHelper();
 		
+		int selection = getSelection(key);
 		
-		
-		System.out.println("Welcome to Evil Corp bank Accounts");
-		
-		while(true)
+		while(selection != 5)
 		{
-
-			Account account = new Account();
-			//Entering account number or -1 to exit.
-			System.out.println("Enter account number or -1 to exit entering account: ");
-			account_number = key.next();
-			key.nextLine();
-		
-			if(account_number.equalsIgnoreCase("-1")){break;}
-			
-			//Increment ID by one for each account added.
-			
-
-			account.setAccount_number(account_number);
-	
-			//Enter the account name.
-			
-			System.out.println("Enter the account name : ");
-			name = key.next();
-			key.nextLine();
-			
-			account.setName(name);
-			
-			//Enter Starting balance.
-			System.out.println("Enter the starting balance : ");
-			starting_balance = key.next();
-			key.nextLine();
-			balance_loop:
-				while(true)
-				{
-					if(val.validateIntWithRange(starting_balance, 1, 1000000))
-					{
-						break balance_loop;
-					}
-					else
-					{
-						System.out.println("Invalid account number, try again.");
-						System.out.println("Enter the starting balance : ");
-						starting_balance = key.next();
-						key.nextLine();
-					}
-				}
-	
-			account.setStarting_balance(Double.parseDouble(starting_balance));
-			
-			//Enter birth date as the format "mm/dd/yyyy", no other formats accepted.
-			System.out.println("Enter the date of birth : ");
-			birth_date = key.next();
-			key.nextLine();
-			
-			date_loop:
-				while(true){
-					if(val.validateDateWithFormat(birth_date))
-					{
-						break date_loop;
-					}
-					else
-					{
-						System.out.println("Invalid date, try again.");
-						System.out.println("Enter the date of birth : format(mm/dd/yyyy)");
-						birth_date = key.next();
-						key.nextLine();
-					}
-				
-				}
-			
-			//mm/dd/yyyy
-			SimpleDateFormat sdf = new SimpleDateFormat("mm/dd/yyyy");
-			try
+			switch (selection)
 			{
-				account.setBirth_date(sdf.parse(birth_date));
-			} catch (ParseException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				case 1 : addCustomer(key);
+					break;
+				case 2 : addAccount(key);
+					break;
+				case 3 : performTransaction(key);
+					break;
+				case 4 : transferMoney(key);
+					break;
 			}
-			//System.out.println(account.getAccount_number());
-			all_in_sql.insertAccount(account);
+			selection = getSelection(key);
 		}
 		
+	}
+	
+	public static int getSelection(Scanner key)
+	{
+		System.out.println("**************************************************");
+		System.out.println("**********Welcome to Evil Corp bank **************");
+		System.out.println("**************************************************");
+		System.out.println();
+		System.out.println("Please select what do you want to do?");
+		System.out.println("1. Add a customer");
+		System.out.println("2. Add an account to Existing Customer");
+		System.out.println("3. Perform Transactions");
+		System.out.println("4. Transfer money between accounts");
+		System.out.println("5. Customer Account Report");
+	
 		
-		System.out.println("Welcome to Evil Corp bank Transactions");
+		int selection = 0;
+		String selectionStr ="";
+		boolean isValid = false;
+		while(!isValid)
+		{
+			System.out.print("Selection: ");
+			selectionStr = key.next();
+			key.nextLine();
+			
+			isValid = Validator.validateIntWithRange(selectionStr, 1, 5);
+			if (!isValid)
+			{
+				System.out.println("Invalid selection, please try again!");
+			}
+		}
+		selection = Integer.parseInt(selectionStr);
+		return selection;
+	}
+	
+	public static void addCustomer(Scanner key)
+	{
+		System.out.println("Add customer");
+		Customer customer = new Customer();
+		
+		System.out.print("Enter first name: ");
+		customer.setFirst_name(key.next());
+		key.nextLine();
+		
+		System.out.print("Enter last name: ");
+		customer.setLast_name(key.next());
+		key.nextLine();
+		
+		boolean availablePhone = false;
+		AccountDBHelper db = new AccountDBHelper();
+		while(!availablePhone)
+		{
+			System.out.print("Enter phone number: ");
+			customer.setPhone_number(key.next());
+			key.nextLine();
+			
+			availablePhone = db.availablePhone(customer.getPhone_number());
+			if(!availablePhone)
+			{
+				System.out.println("Phone is not available, please try again!");
+			}
+		}
+		db.insertCustomer(customer);
+		System.out.println("Customer Created!");
+	}
+	
 
+	
+	public static void addAccount(Scanner key)
+	{
+
+		AccountDBHelper helper = new  AccountDBHelper();
+	
+		System.out.print("Enter phone number: ");
+		String phone_number = key.next();
+		key.nextLine();
+		
+		while(helper.availablePhone(phone_number)){
+	
+			System.out.println("Customer is not exists ");
+			System.out.print("Enter phone number: ");
+			phone_number = key.next();
+			key.nextLine();
+		}
+		Customer customer = helper.findCustomerByPhone(phone_number);
+		Account account = new Account();
+
+		account.setCustomer_id(customer.getId());
+		
+		System.out.print("Enter account number: ");
+		String account_number = key.next();
+		key.nextLine();
+		
+		while(!helper.availableAccountNumber(account_number))
+		{
+	
+			System.out.println("Account number existed ");
+			System.out.print("Enter account number: ");
+			account_number = key.next();
+			key.nextLine();
+		}
+		account.setAccount_number(account_number);
+		
+		
+		System.out.print("Enter starting balance : ");
+		String starting_balance = key.next();
+		key.nextLine();
+		
+		
+		
+		boolean isValid = false;
+		while(!isValid)
+		{
+			if(Validator.validateDoubleWithRange(starting_balance, 0, 1000000)){
+				isValid = true;
+			}else{
+				System.out.println("Invalid balance, try again.");
+				starting_balance = key.next();
+				key.nextLine();
+			}
+			
+		}
+		
+		account.setStarting_balance(Double.parseDouble(starting_balance));
+		helper.insertAccount(account);
+		System.out.println("Account created");
+		
+		
+	}
+	
+	public static void performTransaction(Scanner key)
+	{
+		AccountDBHelper all_in_sql = new AccountDBHelper();
+		System.out.println("Perform transactions");
+		
+		String account_number = " ";
 		transaction_loop:
 		while(true)
 		{
@@ -158,7 +222,8 @@ public class Evil_corp_app {
 					key.nextLine();
 				}
 			}
-
+			
+			String transaction_type_id = " ";
 			
 			boolean validType = false;
 			while(!validType)
@@ -170,7 +235,7 @@ public class Evil_corp_app {
 						+ "4 - Debit Card.");
 				transaction_type_id = key.next();
 				key.nextLine();
-				validType = val.validateIntWithRange(transaction_type_id, 1, 4);
+				validType = Validator.validateIntWithRange(transaction_type_id, 1, 4);
 				
 				if(!validType)
 				{
@@ -180,11 +245,13 @@ public class Evil_corp_app {
 			
 			Transaction transaction = new Transaction();
 			
-			//
+			
 			transaction.setAccount_number(account_number);
 			//set tran type id
 			transaction.setTransaction_type_id(Integer.parseInt(transaction_type_id));
 			
+			
+			String amount = "0";
 			validType = false;
 			while(!validType)
 			{
@@ -192,7 +259,7 @@ public class Evil_corp_app {
 				
 				amount = key.next();
 				key.nextLine();
-				validType = val.validateDoubleWithRange(amount, 0, 10000000);
+				validType = Validator.validateDoubleWithRange(amount, 0, 10000000);
 				
 				if(!validType)
 				{
@@ -203,14 +270,14 @@ public class Evil_corp_app {
 			//set tran amount
 			transaction.setAmount(Double.parseDouble(amount));
 			
-			
+			String transaction_date = " ";
 			validType = false;
 			while(!validType)
 			{
 				System.out.println("Enter Transaction date: (MM/DD/YYYY)");
 				transaction_date =  key.next();
 				key.nextLine();
-				validType = val.validateDateWithFormat(transaction_date);
+				validType = Validator.validateDateWithFormat(transaction_date);
 				if (!validType){
 					System.out.println("Invalid date, try insert date (MM/DD/YYYY): ");
 				}
@@ -240,7 +307,227 @@ public class Evil_corp_app {
 
 
 		}
-	
 	}
+	
+	public static void transferMoney(Scanner key)
+	{
+		AccountDBHelper all_in_sql = new AccountDBHelper();
+		System.out.println("Transfer Money  \n\n");
+		String account_number1 = " ";
+		String account_number2 = " ";
+		//From
+		System.out.println("Enter the account number that you want to transfere from: ");
+		
+		account_number1 = key.next();
+		key.nextLine();
+		
+		Account account1 = new Account ();
+		Account account2 = new Account ();
+		boolean hasAccount = false;
+		
+		while(!hasAccount)
+		{
+
+			account1 = all_in_sql.getAccountFromNumber(account_number1);
+			
+			if(account1.getAccount_number() != null)
+			{
+				hasAccount = true;
+			}
+			else
+			{
+				System.out.println("Account not found! Please try again");
+				System.out.println("Enter the account number that you want to transfere from: ");
+				account_number1 = key.next();
+				key.nextLine();
+			}
+		}
+		
+		String amount = " ";
+		System.out.println("Enter the ammount: ");
+		
+		amount =  key.next();
+		key.nextLine();
+		boolean validType = false;
+		while(!validType)
+		{
+
+			validType = Validator.validateDoubleWithRange(amount, 0, account1.getStarting_balance());
+			if (!validType){
+				System.out.println("Invalid amount \n");
+				System.out.println("Enter the ammount: ");
+				
+				amount =  key.next();
+				key.nextLine();
+			}
+			else
+			{
+				validType = true;
+			}
+
+		}
+		
+		
+		//TO
+		////////////////////
+		System.out.println("Enter the account number that you want to transfere to: ");
+		
+		account_number2 = key.next();
+		key.nextLine();
+		
+		
+		hasAccount = false;
+		
+		while(!hasAccount)
+		{
+
+			account2 = all_in_sql.getAccountFromNumber(account_number2);
+			
+			if(account2.getAccount_number() != null)
+			{
+				hasAccount = true;
+			}
+			else
+			{
+				System.out.println("Account not found! Please try again");
+				System.out.println("Enter the account number that you want to transfere to: ");
+				account_number2 = key.next();
+				key.nextLine();
+			}
+		}
+		
+		//Transfere process
+		account1.setStarting_balance(account1.getStarting_balance() - Double.parseDouble(amount ));
+		account2.setStarting_balance(account2.getStarting_balance() + Double.parseDouble(amount ));
+	
+		//Update accounts after transfer money.
+		all_in_sql.updateBalance(account1);
+		all_in_sql.updateBalance(account2);
+		
+		
+	}
+
+
+//		transaction_loop:
+//		while(true)
+//		{
+//			System.out.println("Enter account number or -1 to exit transactions: ");
+//			account_number = key.next();
+//			key.nextLine();
+//			
+//			if(account_number.equalsIgnoreCase("-1"))
+//			{
+//				break transaction_loop;
+//			}
+//			
+//			
+//			//Look for the account number and see if that in the database.
+//			
+//			boolean hasAccount = false;
+//			while(!hasAccount)
+//			{
+//				if(account_number.equalsIgnoreCase("-1"))
+//				{
+//					break transaction_loop;
+//				}
+//				
+//				Account account = all_in_sql.getAccountFromNumber(account_number);
+//				
+//				if(account.getAccount_number() != null)
+//				{
+//					hasAccount = true;
+//				}
+//				else
+//				{
+//					System.out.println("Account not found! Please try again");
+//					System.out.println("Enter account number or -1 to exit transactions: ");
+//					account_number = key.next();
+//					key.nextLine();
+//				}
+//			}
+//
+//			
+//			boolean validType = false;
+//			while(!validType)
+//			{
+//				System.out.println("Enter the transaction type: \n"
+//						+ "1 - Deposite.\n"
+//						+ "2 - Check.\n"
+//						+ "3 - Withdrawal.\n"
+//						+ "4 - Debit Card.");
+//				transaction_type_id = key.next();
+//				key.nextLine();
+//				validType = val.validateIntWithRange(transaction_type_id, 1, 4);
+//				
+//				if(!validType)
+//				{
+//					System.out.println("Invalid type, please try again!");
+//				}
+//			}
+//			
+//			Transaction transaction = new Transaction();
+//			
+//			//
+//			transaction.setAccount_number(account_number);
+//			//set tran type id
+//			transaction.setTransaction_type_id(Integer.parseInt(transaction_type_id));
+//			
+//			validType = false;
+//			while(!validType)
+//			{
+//				System.out.println("Enter Transaction amount: ");
+//				
+//				amount = key.next();
+//				key.nextLine();
+//				validType = val.validateDoubleWithRange(amount, 0, 10000000);
+//				
+//				if(!validType)
+//				{
+//					System.out.println("Invalid amount, please try again! (from 0 to 10000000)");
+//				}
+//			}
+//			
+//			//set tran amount
+//			transaction.setAmount(Double.parseDouble(amount));
+//			
+//			
+//			validType = false;
+//			while(!validType)
+//			{
+//				System.out.println("Enter Transaction date: (MM/DD/YYYY)");
+//				transaction_date =  key.next();
+//				key.nextLine();
+//				validType = val.validateDateWithFormat(transaction_date);
+//				if (!validType){
+//					System.out.println("Invalid date, try insert date (MM/DD/YYYY): ");
+//				}
+//
+//			}
+//		
+//			SimpleDateFormat sdf = new SimpleDateFormat("mm/dd/yyyy");
+//			
+//			try
+//			{
+//				transaction.setTransaction_date(sdf.parse(transaction_date));
+//			} catch (ParseException e)
+//			{
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
+//			//transaction.process_transaction(account);
+//			
+//			all_in_sql.addTransaction(transaction);
+//		
+//		
+//		
+//					
+//			//Process transaction.
+//			
+//
+//
+//		}
+//	
+
 }
 
