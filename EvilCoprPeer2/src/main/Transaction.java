@@ -7,11 +7,9 @@ import java.util.Scanner;
 
 public class Transaction
 {
-
-	private String account_number;
-
 	private int transaction_type_id;
 	private Date transaction_date = new Date();
+	
 	private Date t_date = new Date();
 	private double amount;
 	private set_date set ;
@@ -23,15 +21,6 @@ public class Transaction
 	}
 	public void setAmount(double amount) {
 		this.amount = amount;
-	}
-
-
-
-	public String getAccount_number() {
-		return account_number;
-	}
-	public void setAccount_number(String account_number) {
-		this.account_number = account_number;
 	}
 	public int getTransaction_type_id() {
 		return transaction_type_id;
